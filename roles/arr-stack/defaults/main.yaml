@@ -1,0 +1,15 @@
+---
+# User/group that container processes run as, and that owns the files on disk
+arr_user: "{{ ansible_user }}"
+arr_puid: 1000
+arr_pgid: 1000
+arr_timezone: Europe/Oslo
+
+# Where the stack lives on the server
+arr_stack_dir: "/srv/arr"
+arr_media_dir: "/home/ubuntu/media"
+arr_downloads_dir: "/home/ubuntu/Downloads"
+
+# qbittorrent ports
+arr_qbittorrent_webui_port: 8080
+arr_qbittorrent_torrent_port: 6881

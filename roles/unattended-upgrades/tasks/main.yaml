@@ -1,0 +1,13 @@
+---
+- name: install unattended upgrades
+  ansible.builtin.apt:
+    name: unattended-upgrades
+    state: present
+    update_cache: true
+- name: Copy 50unatended-upgrades to server
+  ansible.builtin.copy:
+    src: templates/50unattended-upgrades
+    dest: /etc/apt/apt.conf.d/50unattended-upgrades
+    owner: root
+    group: root
+    mode: "0644"

@@ -1,0 +1,40 @@
+---
+- name: Create arr-stack directory structure
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ arr_puid }}"
+    group: "{{ arr_pgid }}"
+    mode: "0755"
+  loop:
+    - "{{ arr_stack_dir }}"
+    - "{{ arr_stack_dir }}/jellyfin/config"
+    - "{{ arr_stack_dir }}/jellyfin/cache"
+    - "{{ arr_stack_dir }}/plex/config"
+    - "{{ arr_stack_dir }}/sonarr/config"
+    - "{{ arr_stack_dir }}/radarr/config"
+    - "{{ arr_stack_dir }}/prowlarr"
+    - "{{ arr_stack_dir }}/bazarr/config"
+    - "{{ arr_stack_dir }}/seerr/config"
+    - "{{ arr_stack_dir }}/qbittorrent/config"
+    - "{{ arr_media_dir }}/movies"
+    - "{{ arr_media_dir }}/series"
+    - "{{ arr_downloads_dir }}"
+
+- name: Deploy docker-compose.yaml
+  ansible.builtin.template:
+    src: docker-compose.yaml.j2
+    dest: "{{ arr_stack_dir }}/docker-compose.yaml"
+    owner: "{{ arr_puid }}"
+    group: "{{ arr_pgid }}"
+    mode: "0644"
+
+- name: Start the arr-stack with docker compose
+  ansible.builtin.command: docker compose up -d --remove-orphans
+  args:
+    chdir: "{{ arr_stack_dir }}"
+  register: arr_compose_up
+  changed_when: >-
+    'Started' in (arr_compose_up.stdout + arr_compose_up.stderr)
+    or 'Created' in (arr_compose_up.stdout + arr_compose_up.stderr)
+    or 'Recreate' in (arr_compose_up.stdout + arr_compose_up.stderr)

@@ -1,0 +1,4 @@
+---
+# Users to add to the docker group (so they can run docker without sudo)
+docker_users:
+  - "{{ ansible_user }}"

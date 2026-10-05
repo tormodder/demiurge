@@ -1,0 +1,15 @@
+---
+- name: Setup auto updates
+  hosts: arr-stack-server
+  become: true
+  gather_facts: true
+  roles:
+    - unattended-upgrades
+
+- name: Deploy the arr stack
+  hosts: arr-stack-server
+  become: true
+  gather_facts: true
+  roles:
+    - docker
+    - arr-stack
