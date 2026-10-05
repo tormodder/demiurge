@@ -2,6 +2,28 @@
 # {{ ansible_managed }}
 # Unified docker-compose for the *arr stack + jellyfin + qbittorrent
 services:
+  gluetun:
+    image: qmcgaw/gluetun:latest
+    container_name: gluetun
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    environment:
+      TZ: {{ arr_timezone }}
+      VPN_SERVICE_PROVIDER: custom
+      VPN_TYPE: wireguard
+      VPN_PORT_FORWARDING: "on"
+      VPN_PORT_FORWARDING_PROVIDER: protonvpn
+      VPN_PORT_FORWARDING_UP_COMMAND: >-
+        /bin/sh -c 'wget -O- --retry-connrefused --post-data "json={\"listen_port\":{% raw %}{{PORTS}}{% endraw %},\"random_port\":false,\"upnp\":false}" http://127.0.0.1:{{ arr_qbittorrent_webui_port }}/api/v2/app/setPreferences 2>&1'
+    volumes:
+      - ./gluetun/wg0.conf:/gluetun/wireguard/wg0.conf:ro
+    ports:
+      - {{ arr_qbittorrent_webui_port }}:{{ arr_qbittorrent_webui_port }}
+      - 9696:9696
+    restart: unless-stopped
+
   jellyfin:
     image: jellyfin/jellyfin
     container_name: jellyfin
@@ -74,8 +96,11 @@ services:
       - TZ={{ arr_timezone }}
     volumes:
       - ./prowlarr:/config
-    ports:
-      - 9696:9696
+    network_mode: "service:gluetun"
+    depends_on:
+      gluetun:
+        condition: service_healthy
+        restart: true
     restart: unless-stopped
 
   bazarr:
@@ -123,12 +148,12 @@ services:
       - PGID={{ arr_pgid }}
       - TZ={{ arr_timezone }}
       - WEBUI_PORT={{ arr_qbittorrent_webui_port }}
-      - TORRENTING_PORT={{ arr_qbittorrent_torrent_port }}
     volumes:
       - ./qbittorrent/config:/config
       - {{ arr_downloads_dir }}:/downloads
-    ports:
-      - {{ arr_qbittorrent_webui_port }}:{{ arr_qbittorrent_webui_port }}
-      - {{ arr_qbittorrent_torrent_port }}:{{ arr_qbittorrent_torrent_port }}
-      - {{ arr_qbittorrent_torrent_port }}:{{ arr_qbittorrent_torrent_port }}/udp
+    network_mode: "service:gluetun"
+    depends_on:
+      gluetun:
+        condition: service_healthy
+        restart: true
     restart: unless-stopped

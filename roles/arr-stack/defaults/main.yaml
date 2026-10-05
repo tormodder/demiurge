@@ -10,6 +10,10 @@ arr_stack_dir: "/srv/arr"
 arr_media_dir: "/home/ubuntu/media"
 arr_downloads_dir: "/home/ubuntu/Downloads"
 
-# qbittorrent ports
+# qbittorrent web UI port. The torrenting port is not set here: it is the
+# forwarded port assigned by the VPN, which gluetun pushes to qbittorrent.
 arr_qbittorrent_webui_port: 8080
-arr_qbittorrent_torrent_port: 6881
+
+# WireGuard config downloaded from Proton VPN, on the machine running Ansible.
+# Contains a private key, so it is gitignored.
+arr_wireguard_conf: "{{ playbook_dir }}/wg0.conf"

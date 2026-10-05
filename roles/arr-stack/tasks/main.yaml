@@ -17,6 +17,7 @@
     - "{{ arr_stack_dir }}/bazarr/config"
     - "{{ arr_stack_dir }}/seerr/config"
     - "{{ arr_stack_dir }}/qbittorrent/config"
+    - "{{ arr_stack_dir }}/gluetun"
     - "{{ arr_media_dir }}/movies"
     - "{{ arr_media_dir }}/series"
     - "{{ arr_downloads_dir }}"
@@ -28,6 +29,23 @@
     owner: "{{ arr_puid }}"
     group: "{{ arr_pgid }}"
     mode: "0644"
+
+- name: Copy WireGuard config for gluetun
+  ansible.builtin.copy:
+    src: "{{ arr_wireguard_conf }}"
+    dest: "{{ arr_stack_dir }}/gluetun/wg0.conf"
+    owner: root
+    group: root
+    mode: "0600"
+  no_log: true
+  register: arr_wireguard_conf_copy
+
+- name: Recreate VPN containers when the WireGuard config changes
+  ansible.builtin.command: docker compose up -d --force-recreate gluetun qbittorrent prowlarr
+  args:
+    chdir: "{{ arr_stack_dir }}"
+  when: arr_wireguard_conf_copy is changed
+  changed_when: true
 
 - name: Start the arr-stack with docker compose
   ansible.builtin.command: docker compose up -d --remove-orphans
