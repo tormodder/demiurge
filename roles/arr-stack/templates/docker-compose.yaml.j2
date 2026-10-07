@@ -103,6 +103,38 @@ services:
         restart: true
     restart: unless-stopped
 
+  healarr:
+    image: ghcr.io/mescon/healarr:latest
+    container_name: healarr
+    init: true
+    environment:
+      - PUID={{ arr_puid }}
+      - PGID={{ arr_pgid }}
+      - TZ={{ arr_timezone }}
+      - HEALARR_DRY_RUN={{ arr_healarr_dry_run | lower }}
+    volumes:
+      - ./healarr/config:/config
+      - {{ arr_media_dir }}/movies:/movies:ro
+      - {{ arr_media_dir }}/series:/series:ro
+    ports:
+      - 3090:3090
+    restart: unless-stopped
+
+  cleanuparr:
+    image: ghcr.io/cleanuparr/cleanuparr:latest
+    container_name: cleanuparr
+    environment:
+      - PUID={{ arr_puid }}
+      - PGID={{ arr_pgid }}
+      - TZ={{ arr_timezone }}
+      - PORT=11011
+    volumes:
+      - ./cleanuparr/config:/config
+      - {{ arr_downloads_dir }}:/downloads
+    ports:
+      - 11011:11011
+    restart: unless-stopped
+
   bazarr:
     image: lscr.io/linuxserver/bazarr:latest
     container_name: bazarr

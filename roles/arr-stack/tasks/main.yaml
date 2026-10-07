@@ -18,6 +18,8 @@
     - "{{ arr_stack_dir }}/seerr/config"
     - "{{ arr_stack_dir }}/qbittorrent/config"
     - "{{ arr_stack_dir }}/gluetun"
+    - "{{ arr_stack_dir }}/healarr/config"
+    - "{{ arr_stack_dir }}/cleanuparr/config"
     - "{{ arr_media_dir }}/movies"
     - "{{ arr_media_dir }}/series"
     - "{{ arr_downloads_dir }}"

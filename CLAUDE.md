@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-An Ansible project that provisions a single Ubuntu home server (`demiurge`) as a *arr media stack: Jellyfin, Plex, Sonarr, Radarr, Prowlarr, Bazarr, Seerr and qBittorrent, all run as Docker containers from one compose file.
+An Ansible project that provisions a single Ubuntu home server (`demiurge`) as a *arr media stack: Jellyfin, Plex, Sonarr, Radarr, Prowlarr, Bazarr, Seerr and qBittorrent, plus the maintenance tools Healarr (corruption scans) and Cleanuparr (download queue cleanup), all run as Docker containers from one compose file.
 
 ## Commands
 
@@ -46,5 +46,6 @@ All tunables live in `roles/arr-stack/defaults/main.yaml` with an `arr_` prefix 
 - `roles/unattended-upgrades/templates/50unattended-upgrades` is deployed with `copy`, not `template` — it is not Jinja-rendered, and its `${distro_id}` placeholders are apt's own syntax.
 - qBittorrent and Prowlarr use `network_mode: "service:gluetun"`, so they have no network of their own: their ports are published on the `gluetun` service, other containers reach them at hostname `gluetun`, and they must be recreated whenever gluetun is. Do not give them `ports:` or move them off gluetun's network — that is the VPN kill switch.
 - The WireGuard config (`wg0.conf` in the repo root, gitignored, contains a private key) is read from the control machine via `arr_wireguard_conf`. Never commit it or print its contents.
+- Healarr and Cleanuparr are only deployed by Ansible; their connections to the arrs and media servers are configured in their web UIs and stored in their config dirs. Healarr stays report-only while `arr_healarr_dry_run` is true, and mounts media at `/movies` and `/series` to match Sonarr/Radarr so no path mapping is needed.
 - All images are pinned to `latest` (or untagged); Plex runs with `network_mode: host` while the other services publish ports.
 - Open TODO from the README: backups.

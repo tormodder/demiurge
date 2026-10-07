@@ -1,19 +1,17 @@
 ---
-# User/group that container processes run as, and that owns the files on disk
+#######
+# Arr variables
+#######
 arr_user: "{{ ansible_user }}"
 arr_puid: 1000
 arr_pgid: 1000
 arr_timezone: Europe/Oslo
 
-# Where the stack lives on the server
 arr_stack_dir: "/srv/arr"
 arr_media_dir: "/home/ubuntu/media"
 arr_downloads_dir: "/home/ubuntu/Downloads"
 
-# qbittorrent web UI port. The torrenting port is not set here: it is the
-# forwarded port assigned by the VPN, which gluetun pushes to qbittorrent.
 arr_qbittorrent_webui_port: 8080
-
-# WireGuard config downloaded from Proton VPN, on the machine running Ansible.
-# Contains a private key, so it is gitignored.
+# true: report corrupt files, false: delete corrupt files and trigger re-download
+arr_healarr_dry_run: true
 arr_wireguard_conf: "{{ playbook_dir }}/wg0.conf"
